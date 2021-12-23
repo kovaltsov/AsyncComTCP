@@ -7,6 +7,8 @@
 #include "AsyncComTCP.h"
 #include "AsyncComTCPDlg.h"
 #include "afxdialogex.h"
+#include "CDialogEdit.h"
+#include "CDialogEdit1.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -66,8 +68,8 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON1, &CAsyncComTCPDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDOK, &CAsyncComTCPDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BUTTON_ADD, &CAsyncComTCPDlg::OnBnClickedButtonAdd)
 END_MESSAGE_MAP()
 
 
@@ -103,6 +105,10 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Мелкий значок
 
 	// TODO: добавьте дополнительную инициализацию
+	m_ListControl.SetExtendedStyle(m_ListControl.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_SHOWSELALWAYS | LVIS_SELECTED);
+	m_ListControl.InsertColumn(0, _T("COM Порт"), LVCFMT_LEFT, 80);
+	m_ListControl.InsertColumn(1, _T("IP адрес"), LVCFMT_LEFT, 100);
+	m_ListControl.InsertColumn(2, _T("TCP Порт"), LVCFMT_LEFT, 80);
 
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
@@ -157,17 +163,41 @@ HCURSOR CAsyncComTCPDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
-void CAsyncComTCPDlg::OnBnClickedButton1()
+void CAsyncComTCPDlg::OnBnClickedOk()
 {
 	// TODO: добавьте свой код обработчика уведомлений
 	CDialogEx::OnOK();
 }
 
 
-void CAsyncComTCPDlg::OnBnClickedOk()
+void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 {
 	// TODO: добавьте свой код обработчика уведомлений
-	CDialogEx::OnOK();
+	CPortSetting s("COM5", "192.168.17.161", 8001);
+	CDialogEdit editDlg(s);
+	if (editDlg.DoModal() == IDOK)
+	{
+		portSettings.push_back(editDlg.getPortSetting());
+	}
+	fillSettings();
+}
+
+void CAsyncComTCPDlg::fillSettings()
+{
+	m_ListControl.DeleteAllItems();
+	for (unsigned int i = 0; i < portSettings.size(); i++)
+	{
+		addItem(portSettings[i].getComPort(), portSettings[i].getIP(), portSettings[i].getTcpPort());
+	}
+}
+
+void CAsyncComTCPDlg::addItem(const string& ComPort, const string& IP, int TcpPort)
+{
+	char tcpStr[TCP_PORT_LENGTH];
+	_itoa_s(TcpPort, tcpStr, 10);
+
+	int lastItem = m_ListControl.GetItemCount();
+	m_ListControl.InsertItem(lastItem, ComPort.c_str());
+	m_ListControl.SetItemText(lastItem, 1, IP.c_str());
+	m_ListControl.SetItemText(lastItem, 2, tcpStr);
 }

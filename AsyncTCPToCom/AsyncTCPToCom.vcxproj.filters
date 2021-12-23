@@ -21,6 +21,12 @@
     <ClCompile Include="..\Source\AsyncComTCPDlg.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\CDialogEdit.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CPortSetting.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\framework.h">
@@ -41,9 +47,21 @@
     <ClInclude Include="..\Source\targetver.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\CDialogEdit.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\CPortSetting.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\common.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Source\res\AsyncComTCP.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="..\Source\res\AsyncComToTCP.ico">
       <Filter>Файлы ресурсов</Filter>
     </Image>
   </ItemGroup>

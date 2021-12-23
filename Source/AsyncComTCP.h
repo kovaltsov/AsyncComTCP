@@ -10,7 +10,6 @@
 
 #include "resource.h"		// основные символы
 
-
 // CAsyncComTCPApp:
 // Сведения о реализации этого класса: AsyncComToTCP.cpp
 //

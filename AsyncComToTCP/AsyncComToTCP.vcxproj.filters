@@ -33,6 +33,15 @@
     <ClInclude Include="..\Source\AsyncComTCPDlg.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\CDialogEdit.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\CPortSetting.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\common.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\pch.cpp">
@@ -42,6 +51,12 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\Source\AsyncComTCPDlg.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CDialogEdit.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\CPortSetting.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

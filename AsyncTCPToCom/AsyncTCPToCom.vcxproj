@@ -30,7 +30,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -192,6 +192,8 @@
   <ItemGroup>
     <ClCompile Include="..\Source\AsyncComTCP.cpp" />
     <ClCompile Include="..\Source\AsyncComTCPDlg.cpp" />
+    <ClCompile Include="..\Source\CDialogEdit.cpp" />
+    <ClCompile Include="..\Source\CPortSetting.cpp" />
     <ClCompile Include="..\Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -202,6 +204,9 @@
   <ItemGroup>
     <ClInclude Include="..\Source\AsyncComTCP.h" />
     <ClInclude Include="..\Source\AsyncComTCPDlg.h" />
+    <ClInclude Include="..\Source\CDialogEdit.h" />
+    <ClInclude Include="..\Source\common.h" />
+    <ClInclude Include="..\Source\CPortSetting.h" />
     <ClInclude Include="..\Source\framework.h" />
     <ClInclude Include="..\Source\pch.h" />
     <ClInclude Include="..\Source\Resource.h" />
@@ -215,6 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Source\res\AsyncComTCP.ico" />
+    <Image Include="..\Source\res\AsyncComToTCP.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
