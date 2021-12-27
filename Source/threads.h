@@ -36,6 +36,10 @@ DWORD WINAPI sockDataExchangeProc(
     _In_ LPVOID lpParameter
 );
 
-DWORD WINAPI comDataExchangeProc(
+DWORD WINAPI comDataReadProc(
+    _In_ LPVOID lpParameter
+);
+
+DWORD WINAPI comDataWriteProc(
     _In_ LPVOID lpParameter
 );

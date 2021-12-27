@@ -11,7 +11,8 @@ public:
 	CRingBuffer m_ComToTcpBuf;
 	//Threads
 	HANDLE         m_SockClientHandle;
-	HANDLE         m_ComPortHandle;
+	HANDLE         m_ComPortRdHandle;
+	HANDLE         m_ComPortWrHandle;
 	//Events
 	HANDLE         m_ReadEvent;
 	HANDLE         m_WriteEvent;
@@ -20,6 +21,10 @@ public:
 	HANDLE         m_ReconnectEvent;
 	HANDLE         m_ConnectEvent;
 	BOOL           m_NeedResend;
+	//Com port
+	OVERLAPPED	   m_overlappedRd; //read thread
+	OVERLAPPED     m_overlappedWr; //write thread
+	HANDLE		   m_hComPort;
 public:
 	CThreadConfig(CPortSetting* portSetting);
 	~CThreadConfig();
@@ -28,6 +33,12 @@ private:
 		CThreadConfig::createEvent(
 			HANDLE* hEvent,
 			_In_ BOOL manualReset,
+			_In_ char* hNameToTrace
+		);
+
+	HRESULT
+		CThreadConfig::createOverlappedEvent(
+			OVERLAPPED* overlapped,
 			_In_ char* hNameToTrace
 		);
 
@@ -46,6 +57,12 @@ private:
 		CThreadConfig::terminateThread(
 			HANDLE* h,
 			_In_ char* hNameToTrace);
+
+	HRESULT
+		comPortOpen(
+			HANDLE& hComPort,
+			string* port
+		);
 
 };
 

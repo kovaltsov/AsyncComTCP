@@ -270,11 +270,121 @@ DWORD WINAPI sockDataExchangeProc(
     return 1;
 }
 
-DWORD WINAPI comDataExchangeProc(
+DWORD WINAPI comDataReadProc(
     _In_ LPVOID lpParameter
 )
 {
-    return 0;
+    CThreadConfig* deviceParams = (CThreadConfig*)lpParameter;
+
+    return 1;
 }
 
+HRESULT writeTcpToCom(CThreadConfig* deviceParams, SockedBuf *sendBuf)
+{
+    CRingBuffer* TcpToComBuf = &deviceParams->m_TcpToComBuf;
+    SIZE_T availableData;
+    SIZE_T bytesSend, lpNumberOfBytesWritten;
+    BOOL rez;
+
+    //создать сигнальный объект-событие для асинхронных операций
+    OVERLAPPED* overlapped = &deviceParams->m_overlappedWr;
+    //overlapped->hEvent = CreateEvent(NULL, true, false, NULL);
+    //overlapped->Internal = 0;
+    //overlapped->InternalHigh = 0;
+    //overlapped->Offset = 0;
+    //overlapped->OffsetHigh = 0;
+    do
+    {
+        TcpToComBuf->Read((byte*)sendBuf->buf, TCP_BUF_SIZE, &sendBuf->inBuf);
+        bytesSend = 0;
+        if (sendBuf->inBuf > 0)
+        {
+            while (bytesSend != sendBuf->inBuf)
+            {
+                rez = WriteFile(deviceParams->m_hComPort, sendBuf->buf, sendBuf->inBuf, &lpNumberOfBytesWritten, overlapped);
+                if (rez)
+                {
+                    cout << "Full write to COM. len = " << lpNumberOfBytesWritten << " rez = " << rez << endl;
+                    bytesSend += lpNumberOfBytesWritten;
+                }
+                else
+                {
+                    rez = GetLastError();
+                    if (rez == ERROR_IO_PENDING)
+                    {
+                        //hDataEvent[1] = overlapped->hEvent;
+                        //Non blocking wait here.
+
+                        WaitForSingleObject(overlapped->hEvent, 1000);
+                        if (lpNumberOfBytesWritten > 0)
+                        {
+                            bytesSend += lpNumberOfBytesWritten;
+                            cout << "Write to COM. len = " << lpNumberOfBytesWritten << " rez = " << rez << endl;
+                        }
+                    }
+                    else
+                    {
+                        rez = GetLastError();
+                        cout << "Com write error GetLastError: " << rez << endl;
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            cout << "TcpToComBuf read data error" << endl;
+        }
+        TcpToComBuf->GetAvailableData(&availableData);
+    } while (availableData > 0);//Если в буфере еще что-то осталось повторяем отправку
+        
+    return S_OK;
+}
+
+DWORD WINAPI comDataWriteProc(
+    _In_ LPVOID lpParameter
+)
+{
+    CThreadConfig* deviceParams = (CThreadConfig*)lpParameter;
+    CRingBuffer* TcpToComBuf = &deviceParams->m_TcpToComBuf;
+    SockedBuf sendBuf;
+
+    const int waitCount = 2;
+    WSAEVENT hDataEvent[waitCount];// = WSA_INVALID_EVENT;
+    hDataEvent[0] = deviceParams->m_ReadEvent;
+    hDataEvent[1] = deviceParams->m_CloseEvent;
+    DWORD wait;
+
+    while (1)
+    {
+        wait = WaitForMultipleObjects(waitCount, hDataEvent, false,  INFINITE);
+        if (wait == WAIT_OBJECT_0)
+        {
+            writeTcpToCom(deviceParams, &sendBuf);
+        }
+        //Overlapped event ??????
+        //if (wait == WAIT_OBJECT_0 + 1)
+        //{
+        //    hDataEvent[1] = NULL;
+        //    if (lpNumberOfBytesWritten > 0)
+        //    {
+        //        bytesSend += lpNumberOfBytesWritten;
+        //        cout << "Write to COM. len = " << lpNumberOfBytesWritten << " rez = " << rez << endl;
+        //        //If not all data was send
+        //        if (sendBuf.inBuf > bytesSend)
+        //        {
+        //            TcpToComBuf->CancelReadBytes(sendBuf.inBuf - bytesSend);
+        //            SetEvent(deviceParams->m_ReadEvent);
+        //        }
+        //    }
+        //}
+        //Close event
+        if (wait == WAIT_OBJECT_0 + 1)
+        {
+            return 1;
+        }
+    }
+
+    return 1;
+}
 #endif
