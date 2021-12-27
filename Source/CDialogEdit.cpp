@@ -9,8 +9,6 @@
 
 #pragma comment(lib, "OneCore.lib")
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 // Диалоговое окно CDialogEdit
 
 IMPLEMENT_DYNAMIC(CDialogEdit, CDialog)
@@ -85,7 +83,7 @@ void CDialogEdit::findPorts()
 	}
 	if (rez == ERROR_SUCCESS)
 	{
-		for (int i = 0; i < size; i++)
+		for (unsigned int i = 0; i < size; i++)
 		{
 			_itoa_s(ports[i], str + COM_OFFSET, COM_STR_SIZE - COM_OFFSET, 10);
 			m_comPort.AddString(str);

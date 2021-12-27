@@ -9,10 +9,14 @@
 #include "afxdialogex.h"
 #include "CDialogEdit.h"
 #include "CDialogEdit1.h"
+#include "common.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+ofstream fout;
+
 
 
 // Диалоговое окно CAboutDlg используется для описания сведений о приложении
@@ -70,6 +74,8 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CAsyncComTCPDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CAsyncComTCPDlg::OnBnClickedButtonAdd)
+	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CAsyncComTCPDlg::OnBnClickedButtonApply)
+	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 
@@ -110,6 +116,9 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	m_ListControl.InsertColumn(1, _T("IP адрес"), LVCFMT_LEFT, 100);
 	m_ListControl.InsertColumn(2, _T("TCP Порт"), LVCFMT_LEFT, 80);
 
+	//cout to file
+	fout.open("Log.txt");
+	cout.rdbuf(fout.rdbuf());
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -173,7 +182,7 @@ void CAsyncComTCPDlg::OnBnClickedOk()
 void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 {
 	// TODO: добавьте свой код обработчика уведомлений
-	CPortSetting s("COM5", "192.168.17.161", 8001);
+	CPortSetting s("COM4", "192.168.17.35", 8035);
 	CDialogEdit editDlg(s);
 	if (editDlg.DoModal() == IDOK)
 	{
@@ -193,11 +202,37 @@ void CAsyncComTCPDlg::fillSettings()
 
 void CAsyncComTCPDlg::addItem(const string& ComPort, const string& IP, int TcpPort)
 {
-	char tcpStr[TCP_PORT_LENGTH];
-	_itoa_s(TcpPort, tcpStr, 10);
+    char tcpStr[TCP_PORT_LENGTH] = { '\0' };
+    if (_itoa_s(TcpPort, tcpStr, 10) == 0)
+    {
+        int lastItem = m_ListControl.GetItemCount();
+        m_ListControl.InsertItem(lastItem, ComPort.c_str());
+        m_ListControl.SetItemText(lastItem, 1, IP.c_str());
+        m_ListControl.SetItemText(lastItem, 2, tcpStr);
+    }
+}
 
-	int lastItem = m_ListControl.GetItemCount();
-	m_ListControl.InsertItem(lastItem, ComPort.c_str());
-	m_ListControl.SetItemText(lastItem, 1, IP.c_str());
-	m_ListControl.SetItemText(lastItem, 2, tcpStr);
+
+void CAsyncComTCPDlg::OnBnClickedButtonApply()
+{
+   // m_ListControl.DeleteAllItems();
+    for (unsigned int i = 0; i < portSettings.size(); i++)
+    {
+        //addItem(portSettings[i].getComPort(), portSettings[i].getIP(), portSettings[i].getTcpPort());
+        CThreadConfig* cfg = new CThreadConfig(&portSettings[i]);
+        threadConfigs.push_back(cfg);
+    }
+	// TODO: добавьте свой код обработчика уведомлений
+}
+
+
+void CAsyncComTCPDlg::OnClose()
+{
+	// TODO: добавьте свой код обработчика сообщений или вызов стандартного
+    for (unsigned int i = 0; i < threadConfigs.size(); i++)
+    {
+        delete threadConfigs[i];
+    }
+	fout.close();
+	CDialogEx::OnClose();
 }

@@ -39,6 +39,7 @@ private:
 	void fillSettings();
 	void addItem(const string& ComPort, const string& IP, int TcpPort);
 
-
-
+public:
+	afx_msg void OnBnClickedButtonApply();
+	afx_msg void OnClose();
 };

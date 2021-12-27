@@ -9,5 +9,9 @@
 
 // Добавьте сюда заголовочные файлы для предварительной компиляции
 #include "framework.h"
+#include <string>
+#include <vector>
+
+using namespace std;
 
 #endif //PCH_H
