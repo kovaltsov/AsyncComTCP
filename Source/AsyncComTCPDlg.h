@@ -35,6 +35,8 @@ public:
 	CListCtrl m_ListControl;
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonAdd();
+	afx_msg void OnBnClickedButtonEdit();
+	afx_msg void OnBnClickedButtonDelete();
 private:
 	void fillSettings();
 	void addItem(const string& ComPort, const string& IP, int TcpPort);

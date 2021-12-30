@@ -75,6 +75,8 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CAsyncComTCPDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CAsyncComTCPDlg::OnBnClickedButtonAdd)
 	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CAsyncComTCPDlg::OnBnClickedButtonApply)
+	ON_BN_CLICKED(IDC_BUTTON_EDIT, &CAsyncComTCPDlg::OnBnClickedButtonEdit)
+	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CAsyncComTCPDlg::OnBnClickedButtonDelete)
 	ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
@@ -194,17 +196,48 @@ void CAsyncComTCPDlg::OnBnClickedOk()
 void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 {
 	// TODO: добавьте свой код обработчика уведомлений
-#ifdef TCP_SERVER
-	CPortSetting s("COM7", "192.168.17.35", 8035);
-#else
-	CPortSetting s("COM4", "192.168.17.35", 8035);
-#endif
-	CDialogEdit editDlg(s);
-	if (editDlg.DoModal() == IDOK)
+	POSITION pos = m_ListControl.GetFirstSelectedItemPosition();
+	int curSel = m_ListControl.GetNextSelectedItem(pos);
+	CDialogEdit* editDlg;
+	if (curSel != -1)
 	{
-		portSettings.push_back(editDlg.getPortSetting());
+		editDlg = new CDialogEdit(portSettings[curSel]);
+	}
+	else
+	{ 
+		editDlg = new CDialogEdit();
+	}
+	if (editDlg->DoModal() == IDOK)
+	{
+		portSettings.push_back(editDlg->getPortSetting());
 	}
 	fillSettings();
+}
+
+void CAsyncComTCPDlg::OnBnClickedButtonDelete()
+{
+	POSITION pos = m_ListControl.GetFirstSelectedItemPosition();
+	int curSel = m_ListControl.GetNextSelectedItem(pos);
+	if (curSel != -1)
+	{
+		portSettings.erase(portSettings.begin() + curSel);
+		fillSettings();
+	}
+}
+
+void CAsyncComTCPDlg::OnBnClickedButtonEdit()
+{
+	POSITION pos = m_ListControl.GetFirstSelectedItemPosition();
+	int curSel = m_ListControl.GetNextSelectedItem(pos);
+	if (curSel != -1)
+	{
+		CDialogEdit editDlg(portSettings[curSel]);
+		if (editDlg.DoModal() == IDOK)
+		{
+			portSettings[curSel] = editDlg.getPortSetting();
+		}
+		fillSettings();
+	}
 }
 
 void CAsyncComTCPDlg::fillSettings()

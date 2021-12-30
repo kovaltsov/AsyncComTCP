@@ -56,7 +56,6 @@ void CDialogEdit::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CDialogEdit, CDialog)
 	ON_BN_CLICKED(IDOK, &CDialogEdit::OnBnClickedOk)
-	ON_BN_CLICKED(IDC_BUTTON1, &CDialogEdit::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -131,14 +130,4 @@ void CDialogEdit::OnBnClickedOk()
 CPortSetting CDialogEdit::getPortSetting()
 {
 	return m_portSetting;
-}
-
-
-
-
-
-void CDialogEdit::OnBnClickedButton1()
-{
-	// TODO: добавьте свой код обработчика уведомлений
-
 }

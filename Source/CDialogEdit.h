@@ -35,5 +35,4 @@ public:
 	CString m_tcpPort;
 	DWORD m_IPvalue;
 	CString m_comPortValue;
-	afx_msg void OnBnClickedButton1();
 };
