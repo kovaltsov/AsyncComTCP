@@ -117,8 +117,20 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	m_ListControl.InsertColumn(2, _T("TCP Порт"), LVCFMT_LEFT, 80);
 
 	//cout to file
-	fout.open("Log.txt");
+	fout.open("Log.log");
 	cout.rdbuf(fout.rdbuf());
+
+//Fill for debug purpose. Delete this
+#ifdef TCP_SERVER
+	this->SetWindowTextA("Server");
+	CPortSetting s("COM7", "192.168.17.35", 8035);
+#else
+	this->SetWindowTextA("Client");
+	CPortSetting s("COM4", "192.168.17.35", 8035);
+#endif
+	portSettings.push_back(s);
+	fillSettings();
+
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -182,7 +194,11 @@ void CAsyncComTCPDlg::OnBnClickedOk()
 void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 {
 	// TODO: добавьте свой код обработчика уведомлений
+#ifdef TCP_SERVER
+	CPortSetting s("COM7", "192.168.17.35", 8035);
+#else
 	CPortSetting s("COM4", "192.168.17.35", 8035);
+#endif
 	CDialogEdit editDlg(s);
 	if (editDlg.DoModal() == IDOK)
 	{

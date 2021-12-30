@@ -78,8 +78,8 @@ CRingBuffer::ReInitialize(
 )
 {
     HRESULT rez;
-    m_InUse |= BUFFER_REINIT;//Взводим флаг
-    while (m_InUse != BUFFER_REINIT);//Ждем освобождения других флагов
+    m_InUse |= BUFFER_REINIT;//Raising the flag
+    while (m_InUse != BUFFER_REINIT);// waiting for the release of other flags
     if (m_Base)//Delete old buffer
     {
         delete[] m_Base;
@@ -303,9 +303,10 @@ CRingBuffer::Read(
     return S_OK;
 }
 
-/*Смещает буфер на DataSize байт назад.
-Отменяет предыдущее чтение байт
-Не защищен от перезаписи
+/*
+Shifts the buffer by DataSize bytes backwards.
+Cancels the previous byte reading
+Not protected from overwriting
 */
 HRESULT
 CRingBuffer::CancelReadBytes(
@@ -333,7 +334,7 @@ CRingBuffer::CancelReadBytes(
     return S_OK;
 }
 
-//Чистка буфера. Защита от чтения и записи
+//Cleaning the buffer. Read and write protection
 BOOL CRingBuffer::Purge()
 {
     if (m_InUse == 0)

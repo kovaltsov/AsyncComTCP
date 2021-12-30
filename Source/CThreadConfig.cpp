@@ -3,7 +3,7 @@
 
 vector<CThreadConfig*> threadConfigs;
 
-CThreadConfig::CThreadConfig(CPortSetting* portSetting)
+CThreadConfig::CThreadConfig(_In_ CPortSetting* portSetting)
 {
 	HRESULT hr = S_OK;
 
@@ -16,11 +16,11 @@ CThreadConfig::CThreadConfig(CPortSetting* portSetting)
 		return E_ABORT;
 	}*/
 
-	hr = createEvent(&m_ReadEvent, FALSE, "m_ReadEvent");
+	hr = createEvent(&m_TcpRcvEvent, FALSE, "m_TcpRcvEvent");
 
 	if (SUCCEEDED(hr))
 	{
-		hr = createEvent(&m_WriteEvent, FALSE, "m_WriteEvent");
+		hr = createEvent(&m_ComRcvEvent, FALSE, "m_ComRcvEvent");
 	}
 
 	if (SUCCEEDED(hr))
@@ -73,7 +73,7 @@ CThreadConfig::CThreadConfig(CPortSetting* portSetting)
 	//Open Com Port
 	if (SUCCEEDED(hr))
 	{
-		hr = comPortOpen(m_hComPort, &portSetting->getComPort());
+		hr = comPortOpen(m_hComPort, portSetting->getComPort());
 	}
 
 	//COM read thread
@@ -102,9 +102,9 @@ CThreadConfig::CThreadConfig(CPortSetting* portSetting)
 
 	if (FAILED(hr))
 	{
-		cout << "Failed to start main TCP thread!";
-		closeHandle(&m_ReadEvent, "&m_ReadEvent");
-		closeHandle(&m_WriteEvent, "m_WriteEvent");
+		ERR("Failed to start main TCP thread!");
+		closeHandle(&m_TcpRcvEvent, "&m_TcpRcvEvent");
+		closeHandle(&m_ComRcvEvent, "m_ComRcvEvent");
 		closeHandle(&m_CloseEvent, "m_CloseEvent");
 		closeHandle(&m_ConfigEvent, "m_ConfigEvent");
 		closeHandle(&m_ReconnectEvent, "m_ReconnectEvent");
@@ -126,33 +126,8 @@ CThreadConfig::~CThreadConfig()
 	waitToCloseThread(&m_SockClientHandle, "sockClientProc");
 	waitToCloseThread(&m_ComPortRdHandle, "comDataReadProc");
 	waitToCloseThread(&m_ComPortWrHandle, "comDataWriteProc");
-	//    wait = WaitForSingleObject(m_SockClientHandle, 10000);
-		//if (wait == WAIT_OBJECT_0)
-		//{//Корректное завершение потока
-		//    m_SockClientHandle = NULL;
-		//    Trace(TRACE_LEVEL_INFORMATION, "Stop sockClientProc success!");
-		//}
-		//else if (wait == WAIT_TIMEOUT)
-		//{//Принудительное завершение потока
-		//    Trace(TRACE_LEVEL_INFORMATION, "Stop sockClientProc timeout! Try TerminateThread function");
-		//    TerminateThread(m_SockClientHandle, 1);
-		//    wait = WaitForSingleObject(m_SockClientHandle, 10000);
-		//    if (wait == WAIT_OBJECT_0)
-		//    {
-		//        m_SockClientHandle = NULL;
-		//        Trace(TRACE_LEVEL_INFORMATION, "Terminate sockClientProc success!");
-		//    }
-		//    else
-		//    {
-		//        Trace(TRACE_LEVEL_ERROR, "Terminate sockClientProc failed GetLastError: %ld", GetLastError());
-		//    }
-		//}
-		//else
-		//{
-		//    Trace(TRACE_LEVEL_ERROR, "Stop sockClientProc failed GetLastError: %ld", GetLastError());
-		//}
-	closeHandle(&m_ReadEvent, "m_ReadEvent");
-	closeHandle(&m_WriteEvent, "m_WriteEvent");
+	closeHandle(&m_TcpRcvEvent, "m_TcpRcvEvent");
+	closeHandle(&m_ComRcvEvent, "m_ComRcvEvent");
 	closeHandle(&m_CloseEvent, "m_CloseEvent");
 	closeHandle(&m_ConfigEvent, "m_ConfigEvent");
 	closeHandle(&m_ReconnectEvent, "m_ReconnectEvent");
@@ -165,14 +140,14 @@ CThreadConfig::~CThreadConfig()
 
 HRESULT
 CThreadConfig::createEvent(
-	HANDLE* hEvent,
+	_Out_ HANDLE* hEvent,
 	_In_ BOOL manualReset,
 	_In_ char* hNameToTrace
 )
 {
 	HRESULT hr = S_OK;
 	*hEvent = CreateEventA(NULL, manualReset, FALSE, NULL);
-	cout << hNameToTrace << "=" << (int*)*hEvent << endl;
+	LOG(hNameToTrace << "=" << (int*)*hEvent);
 	if (*hEvent == NULL)
 	{
 		hr = E_UNEXPECTED;
@@ -180,7 +155,9 @@ CThreadConfig::createEvent(
 	return hr;
 }
 
-HRESULT CThreadConfig::createOverlappedEvent(OVERLAPPED* overlapped, char* hNameToTrace)
+HRESULT CThreadConfig::createOverlappedEvent(
+	_Out_ OVERLAPPED* overlapped,
+	_In_ char* hNameToTrace)
 {
 	overlapped->Internal = 0;
 	overlapped->InternalHigh = 0;
@@ -191,7 +168,7 @@ HRESULT CThreadConfig::createOverlappedEvent(OVERLAPPED* overlapped, char* hName
 
 void
 CThreadConfig::waitToCloseThread(
-	HANDLE* h,
+	_Inout_ HANDLE* h,
 	_In_ char* hNameToTrace)
 {
 	DWORD wait;
@@ -200,99 +177,104 @@ CThreadConfig::waitToCloseThread(
 	if (wait == WAIT_OBJECT_0)
 	{//Корректное завершение потока
 		*h = NULL;
-		cout << "Stop " << hNameToTrace << " success!" << endl;
+		LOG("Stop " << hNameToTrace << " success!");
 	}
 	else if (wait == WAIT_TIMEOUT)
 	{//Принудительное завершение потока
-		cout << "Stop " << hNameToTrace << " timeout! Try TerminateThread function" << endl;
-		TerminateThread(*h, 1);
-		wait = WaitForSingleObject(*h, CLOSE_HANDLE_TIMEOUT);
-		if (wait == WAIT_OBJECT_0)
+		GetExitCodeThread(*h, &wait);
+		if (wait == STILL_ACTIVE)
 		{
-			*h = NULL;
-			cout << "Terminate " << hNameToTrace <<" success!" << endl;
-		}
-		else
-		{
-			cout << "Terminate " << hNameToTrace << " failed GetLastError : " << GetLastError() << endl;
+			ERR("Stop " << hNameToTrace << " timeout! Try TerminateThread function");
+			TerminateThread(*h, 1);
+			wait = WaitForSingleObject(*h, CLOSE_HANDLE_TIMEOUT);
+			if (wait == WAIT_OBJECT_0)
+			{
+				*h = NULL;
+				ERR("Terminate " << hNameToTrace << " success!");
+			}
+			else
+			{
+				ERR("Terminate " << hNameToTrace << " failed GetLastError : " << GetLastError());
+			}
 		}
 	}
 	else
 	{
-		cout << "Stop " << hNameToTrace << " failed GetLastError :" << GetLastError() << endl;
+		ERR("Stop " << hNameToTrace << " failed GetLastError :" << GetLastError());
 	}
 }
 
 void
 CThreadConfig::closeHandle(
-	HANDLE* h,
+	_Inout_ HANDLE* h,
 	_In_ char* hNameToTrace)
 {
 	if (*h == NULL) return;
 	bool close = false;
 	close = CloseHandle(*h);
 	*h = NULL;
-	cout << "CloseHandle " << hNameToTrace << " = " << close << endl;
+	LOG("CloseHandle " << hNameToTrace << " = " << close);
 	if (close == false)
 	{
-		cout << hNameToTrace << " GetLastError: " << GetLastError() << endl;
+		ERR(hNameToTrace << " GetLastError: " << GetLastError());
 	}
 }
 
 void
 CThreadConfig::terminateThread(
-	HANDLE* h,
+	_Inout_ HANDLE* h,
 	_In_ char* hNameToTrace)
 {
 	if (*h == NULL) return;
 	bool close = false;
 	close = TerminateThread(*h, 1);
 	*h = NULL;
-	cout << "TerminateThread" << hNameToTrace << " = " << close << endl;
+	LOG("TerminateThread" << hNameToTrace << " = " << close);
 	if (close == false)
 	{
-		cout << hNameToTrace << " GetLastError: " << GetLastError() << endl;
+		ERR(hNameToTrace << " GetLastError: " << GetLastError());
 	}
 }
 
-HRESULT CThreadConfig::comPortOpen(HANDLE &hComPort, string* port)
+HRESULT CThreadConfig::comPortOpen(
+	_Out_ HANDLE &hComPort, 
+	_In_ const string& port)
 {
 	HRESULT hr = S_OK;
-	hComPort = CreateFileA(port->c_str(), GENERIC_READ | GENERIC_WRITE, 0,
+	hComPort = CreateFileA(port.c_str(), GENERIC_READ | GENERIC_WRITE, 0,
 		NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 	if (hComPort == INVALID_HANDLE_VALUE)
 	{
 		hr = E_UNEXPECTED;
 		if (GetLastError() == ERROR_FILE_NOT_FOUND)
 		{
-			cout << "serial port does not exist.\n";
+			ERR("serial port does not exist");
 		}
 		else
 		{
-			cout << "some other error occurred.\n";
-			cout << GetLastError();
+			ERR("some other error occurred " << GetLastError());
 		}
 	}
 	else
 	{
-		cout << "Port open successfully! " << port << endl;
+		LOG("Port open successfully! " << port);
 		DWORD fileType = GetFileType(hComPort);
-		cout << "fileType = " << fileType << " lastError = " << GetLastError() << endl;
+		LOG("fileType = " << fileType << " lastError = " << GetLastError());
 		DCB dcbSerialParams = { 0 };
 		dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 		if (!GetCommState(hComPort, &dcbSerialParams))
 		{
 			hr = E_UNEXPECTED;
-			cout << "getting state error\n";
+			ERR("getting state error");
 		}
-		dcbSerialParams.BaudRate = CBR_56000;
+		dcbSerialParams.BaudRate = CBR_256000;
 		dcbSerialParams.ByteSize = 8;
 		dcbSerialParams.StopBits = ONESTOPBIT;
 		dcbSerialParams.Parity = EVENPARITY;
 		if (!SetCommState(hComPort, &dcbSerialParams))
 		{
 			hr = E_UNEXPECTED;
-			cout << "error setting serial port state\n";
+			ERR("error setting serial port state");
 		}
 	}
 	return hr;

@@ -1,24 +1,26 @@
 #pragma once
 #include "pch.h"
 
+#define MIN_USER_TCP_PORT 1024
+#define MAX_USER_TCP_PORT 49151
 
 class CPortSetting
 {
 private:
 	string comPort;
 	string ip;
-	int tcpPort;
+	USHORT tcpPort;
 
 public:
 	CPortSetting();
-	CPortSetting(const string &ComPort,
-		const string &IP,
-		int TcpPort);
+	CPortSetting(_In_ const string &ComPort,
+		_In_ const string &IP,
+		_In_ USHORT TcpPort);
 public:
 	string getIP();
 	string getComPort();
-	int getTcpPort();
-	void setIP(const string& IP);
-	void setComPort(const string& ComPort);
-	void setTcpPort(int TcpPort);
+	USHORT getTcpPort();
+	void setIP(_In_ const string& IP);
+	void setComPort(_In_ const string& ComPort);
+	void setTcpPort(_In_ int TcpPort);
 };

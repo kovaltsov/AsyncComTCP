@@ -14,8 +14,8 @@ public:
 	HANDLE         m_ComPortRdHandle;
 	HANDLE         m_ComPortWrHandle;
 	//Events
-	HANDLE         m_ReadEvent;
-	HANDLE         m_WriteEvent;
+	HANDLE         m_TcpRcvEvent;
+	HANDLE         m_ComRcvEvent;
 	HANDLE         m_CloseEvent;
 	HANDLE         m_ConfigEvent;
 	HANDLE         m_ReconnectEvent;
@@ -26,43 +26,42 @@ public:
 	OVERLAPPED     m_overlappedWr; //write thread
 	HANDLE		   m_hComPort;
 public:
-	CThreadConfig(CPortSetting* portSetting);
+	CThreadConfig(_In_ CPortSetting* portSetting);
 	~CThreadConfig();
 private:
 	HRESULT
-		CThreadConfig::createEvent(
-			HANDLE* hEvent,
+		createEvent(
+			_Out_ HANDLE* hEvent,
 			_In_ BOOL manualReset,
 			_In_ char* hNameToTrace
 		);
 
 	HRESULT
-		CThreadConfig::createOverlappedEvent(
-			OVERLAPPED* overlapped,
+		createOverlappedEvent(
+			_Out_ OVERLAPPED* overlapped,
 			_In_ char* hNameToTrace
 		);
 
 	void
-		CThreadConfig::waitToCloseThread(
-			HANDLE* h,
+		waitToCloseThread(
+			_Inout_ HANDLE* h,
 			_In_ char* hNameToTrace);
 
 
 	void
-		CThreadConfig::closeHandle(
-			HANDLE* h,
+		closeHandle(
+			_Inout_ HANDLE* h,
 			_In_ char* hNameToTrace);
 
 	void
-		CThreadConfig::terminateThread(
-			HANDLE* h,
+		terminateThread(
+			_Inout_ HANDLE* h,
 			_In_ char* hNameToTrace);
 
 	HRESULT
 		comPortOpen(
-			HANDLE& hComPort,
-			string* port
-		);
+			_Out_ HANDLE& hComPort,
+			_In_ const string& port);
 
 };
 

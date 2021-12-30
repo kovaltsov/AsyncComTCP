@@ -24,6 +24,7 @@
     <Keyword>MFCProj</Keyword>
     <RootNamespace>AsyncTCPToCom</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Server</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -89,9 +90,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions);TCP_SERVER</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions);TCP_SERVER;_WINSOCK_DEPRECATED_NO_WARNINGS</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -194,12 +195,15 @@
     <ClCompile Include="..\Source\AsyncComTCPDlg.cpp" />
     <ClCompile Include="..\Source\CDialogEdit.cpp" />
     <ClCompile Include="..\Source\CPortSetting.cpp" />
+    <ClCompile Include="..\Source\CThreadConfig.cpp" />
     <ClCompile Include="..\Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Source\ringbuffer.cpp" />
+    <ClCompile Include="..\Source\threads.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\AsyncComTCP.h" />
@@ -207,10 +211,13 @@
     <ClInclude Include="..\Source\CDialogEdit.h" />
     <ClInclude Include="..\Source\common.h" />
     <ClInclude Include="..\Source\CPortSetting.h" />
+    <ClInclude Include="..\Source\CThreadConfig.h" />
     <ClInclude Include="..\Source\framework.h" />
     <ClInclude Include="..\Source\pch.h" />
     <ClInclude Include="..\Source\Resource.h" />
+    <ClInclude Include="..\Source\ringbuffer.h" />
     <ClInclude Include="..\Source\targetver.h" />
+    <ClInclude Include="..\Source\threads.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Source\AsyncComTCP.rc" />
