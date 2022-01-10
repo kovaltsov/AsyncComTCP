@@ -26,7 +26,6 @@ CDialogEdit::CDialogEdit(CWnd* pParent /*=nullptr*/)
 CDialogEdit::CDialogEdit(CPortSetting &s)
 	: CDialog(IDD_DIALOG_EDIT)
 {
-	
 	m_portSetting = s;
 	m_tcpPort.Format("%d", s.getTcpPort());
 

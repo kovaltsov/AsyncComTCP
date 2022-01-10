@@ -3,7 +3,7 @@
 //
 
 #include "pch.h"
-#include "framework.h"
+//#include "framework.h"
 #include "AsyncComTCP.h"
 #include "AsyncComTCPDlg.h"
 #include "afxdialogex.h"
@@ -16,8 +16,6 @@
 #endif
 
 ofstream fout;
-
-
 
 // Диалоговое окно CAboutDlg используется для описания сведений о приложении
 
@@ -72,7 +70,6 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDOK, &CAsyncComTCPDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CAsyncComTCPDlg::OnBnClickedButtonAdd)
 	ON_BN_CLICKED(IDC_BUTTON_APPLY, &CAsyncComTCPDlg::OnBnClickedButtonApply)
 	ON_BN_CLICKED(IDC_BUTTON_EDIT, &CAsyncComTCPDlg::OnBnClickedButtonEdit)
@@ -117,6 +114,7 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	m_ListControl.InsertColumn(0, _T("COM Порт"), LVCFMT_LEFT, 80);
 	m_ListControl.InsertColumn(1, _T("IP адрес"), LVCFMT_LEFT, 100);
 	m_ListControl.InsertColumn(2, _T("TCP Порт"), LVCFMT_LEFT, 80);
+	m_ListControl.InsertColumn(3, _T("Статус"), LVCFMT_LEFT, 80);
 
 	//cout to file
 	fout.open("Log.log");
@@ -125,14 +123,13 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 //Fill for debug purpose. Delete this
 #ifdef TCP_SERVER
 	this->SetWindowTextA("Server");
-	CPortSetting s("COM7", "192.168.17.35", 8035);
+	CPortSetting s("COM7", "192.168.17.35", 8035, this);
 #else
 	this->SetWindowTextA("Client");
-	CPortSetting s("COM4", "192.168.17.35", 8035);
+	CPortSetting s("COM4", "192.168.17.35", 8035, this);
 #endif
 	portSettings.push_back(s);
 	fillSettings();
-
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -186,13 +183,6 @@ HCURSOR CAsyncComTCPDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CAsyncComTCPDlg::OnBnClickedOk()
-{
-	// TODO: добавьте свой код обработчика уведомлений
-	CDialogEx::OnOK();
-}
-
-
 void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 {
 	// TODO: добавьте свой код обработчика уведомлений
@@ -205,7 +195,8 @@ void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 	}
 	else
 	{ 
-		editDlg = new CDialogEdit();
+		CPortSetting s(this);
+		editDlg = new CDialogEdit(s);
 	}
 	if (editDlg->DoModal() == IDOK)
 	{
@@ -245,11 +236,20 @@ void CAsyncComTCPDlg::fillSettings()
 	m_ListControl.DeleteAllItems();
 	for (unsigned int i = 0; i < portSettings.size(); i++)
 	{
-		addItem(portSettings[i].getComPort(), portSettings[i].getIP(), portSettings[i].getTcpPort());
+		addItem(portSettings[i].getComPort(), 
+			portSettings[i].getIP(), 
+			portSettings[i].getTcpPort(), 
+			portSettings[i].getStatus());
 	}
+	//if (curSel != -1)
+	//{
+	//	//m_ListControl.SetSelectedColumn(curSel);
+	//	m_ListControl.SetSelectionMark(curSel);
+	//	m_ListControl.selec
+	//}
 }
 
-void CAsyncComTCPDlg::addItem(const string& ComPort, const string& IP, int TcpPort)
+void CAsyncComTCPDlg::addItem(const string& ComPort, const string& IP, int TcpPort, const string& status)
 {
     char tcpStr[TCP_PORT_LENGTH] = { '\0' };
     if (_itoa_s(TcpPort, tcpStr, 10) == 0)
@@ -258,7 +258,38 @@ void CAsyncComTCPDlg::addItem(const string& ComPort, const string& IP, int TcpPo
         m_ListControl.InsertItem(lastItem, ComPort.c_str());
         m_ListControl.SetItemText(lastItem, 1, IP.c_str());
         m_ListControl.SetItemText(lastItem, 2, tcpStr);
+		m_ListControl.SetItemText(lastItem, 3, status.c_str());
     }
+}
+
+void CAsyncComTCPDlg::updatePortSettings()
+{
+	//m_ListControl.DeleteAllItems();
+	for (unsigned int i = 0; i < portSettings.size(); i++)
+	{
+		setItem(i, portSettings[i].getComPort(),
+			portSettings[i].getIP(),
+			portSettings[i].getTcpPort(),
+			portSettings[i].getStatus());
+	}
+	//if (curSel != -1)
+	//{
+	//	//m_ListControl.SetSelectedColumn(curSel);
+	//	m_ListControl.SetSelectionMark(curSel);
+	//	m_ListControl.selec
+	//}
+}
+
+void CAsyncComTCPDlg::setItem(int num, const string& ComPort, const string& IP, int TcpPort, const string& status)
+{
+	char tcpStr[TCP_PORT_LENGTH] = { '\0' };
+	if (_itoa_s(TcpPort, tcpStr, 10) == 0)
+	{
+		m_ListControl.SetItemText(num, 0, ComPort.c_str());
+		m_ListControl.SetItemText(num, 1, IP.c_str());
+		m_ListControl.SetItemText(num, 2, tcpStr);
+		m_ListControl.SetItemText(num, 3, status.c_str());
+	}
 }
 
 

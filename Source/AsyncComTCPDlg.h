@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include "common.h"
 
 // Диалоговое окно CAsyncComTCPDlg
 class CAsyncComTCPDlg : public CDialogEx
@@ -33,15 +32,17 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListCtrl m_ListControl;
-	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonAdd();
 	afx_msg void OnBnClickedButtonEdit();
 	afx_msg void OnBnClickedButtonDelete();
 private:
 	void fillSettings();
-	void addItem(const string& ComPort, const string& IP, int TcpPort);
+	void addItem(const string& ComPort, const string& IP, int TcpPort, const string& status);
+
+	void setItem(int num, const string& ComPort, const string& IP, int TcpPort, const string& status);
 
 public:
 	afx_msg void OnBnClickedButtonApply();
 	afx_msg void OnClose();
+	void updatePortSettings();
 };

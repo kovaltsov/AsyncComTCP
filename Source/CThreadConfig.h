@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "CPortSetting.h"
-#include "ringbuffer.h"
+#include "common.h"
 
 class CThreadConfig
 {

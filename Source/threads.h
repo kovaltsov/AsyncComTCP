@@ -1,7 +1,6 @@
 #pragma once
 
-#include "CPortSetting.h"
-#include "ringbuffer.h"
+#include "common.h"
 
 // Set ring buffer size
 #define DATA_BUFFER_SIZE 10240

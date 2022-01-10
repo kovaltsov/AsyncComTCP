@@ -34,6 +34,7 @@ threadStatus socketDataEventsHandler(
         rez = wsaProcessEvent.iErrorCode[FD_CONNECT_BIT];
         if (rez == 0)
         {
+            deviceParams->m_portSetting->setStatus(PortStatus::Connected);
             LOG("Connected to server.\n");
         }
         else
@@ -402,6 +403,7 @@ DWORD WINAPI sockDataExchangeProc(
 
     for (;;)
     {
+        deviceParams->m_portSetting->setStatus(PortStatus::Processing);
         // Create a SOCKET for connecting to server
         SOCKET ConnectSocket;
         ConnectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -414,12 +416,13 @@ DWORD WINAPI sockDataExchangeProc(
         threadStatus tResult = waitForDataEventsLoop(ConnectSocket, deviceParams);//blocking loop
         shutdown(ConnectSocket, SD_BOTH);
         iResult = closesocket(ConnectSocket);
-        if (iResult == SOCKET_ERROR) {
-            ERR("closesocket function failed with error: " << WSAGetLastError());
-            break;
-        }
         if (tResult == threadStatus::THREAD_FREE)
         {
+            break;
+        }
+        deviceParams->m_portSetting->setStatus(PortStatus::Disconnected);
+        if (iResult == SOCKET_ERROR) {
+            ERR("closesocket function failed with error: " << WSAGetLastError());
             break;
         }
         Sleep(RECONNECT_TIMEOUT);
@@ -511,6 +514,7 @@ threadStatus waitForDataEventsLoop(
                 ERR("accept failed with error: " << WSAGetLastError());
                 return threadStatus::THREAD_FREE;
             }
+            deviceParams->m_portSetting->setStatus(PortStatus::Connected);
             //Activate client connection events
             ::WSAEventSelect(clientSocket, hDataEvent[1], FD_WRITE | FD_READ | FD_CLOSE | FD_CONNECT);
         }
@@ -575,6 +579,7 @@ DWORD WINAPI sockDataExchangeProc(
     for (;;)
     {
         // Create a server SOCKET 
+        deviceParams->m_portSetting->setStatus(PortStatus::Processing);
         SOCKET serverSocket;
         serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
         if (serverSocket == INVALID_SOCKET) {
@@ -590,12 +595,13 @@ DWORD WINAPI sockDataExchangeProc(
         threadStatus tResult = waitForDataEventsLoop(serverSocket, deviceParams);//blocking loop
         shutdown(serverSocket, SD_BOTH);
         iResult = closesocket(serverSocket);
-        if (iResult == SOCKET_ERROR) {
-            ERR("closesocket function failed with error: " << WSAGetLastError());
-            break;
-        }
         if (tResult == threadStatus::THREAD_FREE)
         {
+            break;
+        }
+        deviceParams->m_portSetting->setStatus(PortStatus::Disconnected);
+        if (iResult == SOCKET_ERROR) {
+            ERR("closesocket function failed with error: " << WSAGetLastError());
             break;
         }
         Sleep(RECONNECT_TIMEOUT);
