@@ -135,7 +135,6 @@ CThreadConfig::~CThreadConfig()
 	closeHandle(&m_hComPort, "m_hComPort");
 	closeHandle(&m_overlappedRd.hEvent, "m_overlappedRd");
 	closeHandle(&m_overlappedWr.hEvent, "m_overlappedWr");
-	//return S_OK;
 }
 
 HRESULT

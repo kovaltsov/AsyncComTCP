@@ -6,20 +6,24 @@ vector<CPortSetting> portSettings;
 
 CPortSetting::CPortSetting(_In_ const string& ComPort,
 	_In_ const string& IP,
-	_In_ USHORT TcpPort,
-	_In_ CAsyncComTCPDlg* dlg)
+	_In_ USHORT TcpPort)
 {
 	comPort = ComPort;
 	ip = IP;
 	tcpPort = TcpPort;
 	status = PortStatus::Stopped;
-	this->dlg = dlg;
 }
 
-CPortSetting::CPortSetting(_In_ CAsyncComTCPDlg* dlg)
-	:CPortSetting()
+CPortSetting::~CPortSetting()
 {
-	this->dlg = dlg;
+	;
+}
+
+bool CPortSetting::isStatusChange()
+{
+	bool ret = statusChange;
+	statusChange = false;
+	return ret;
 }
 
 CPortSetting::CPortSetting()
@@ -28,7 +32,6 @@ CPortSetting::CPortSetting()
 	ip = "0.0.0.0";
 	tcpPort = 0;
 	status = PortStatus::Stopped;
-	dlg = NULL;
 }
 
 string CPortSetting::getIP()
@@ -77,11 +80,10 @@ void CPortSetting::setTcpPort(_In_ int TcpPort)
 
 void CPortSetting::setStatus(_In_ PortStatus Status)
 {
-	status = Status;
-	ASSERT(dlg != NULL);
-	if (dlg != NULL)
+	if (status != Status)
 	{
-		dlg->updatePortSettings();
+		statusChange = true;
 	}
+	status = Status;
 }
 

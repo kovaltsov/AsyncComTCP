@@ -350,7 +350,7 @@ threadStatus waitForDataEventsLoop(
             tStatus = socketDataEventsHandler(ConnectSocket, deviceParams, &rcvBuf, hDataEvent[0]);
             if (tStatus != threadStatus::THREAD_CONTINUE)
             {
-                return tStatus;
+                break;
             }
         }
         //Write to socket
@@ -359,21 +359,23 @@ threadStatus waitForDataEventsLoop(
             tStatus = writeComToTcp(ConnectSocket, deviceParams, &sendBuf);
             if (tStatus != threadStatus::THREAD_CONTINUE)
             {
-                return tStatus;
+                break;
             }
         }
         //Close thread
         if (wait == WSA_WAIT_EVENT_0 + 2)
         {
             LOG("CLOSE THREAD EVENT CATCH");
-            return threadStatus::THREAD_FREE;// 0;
+            tStatus = threadStatus::THREAD_FREE;// 0;
+            break;
         }
         //Reconnect to server
         if (wait == WSA_WAIT_EVENT_0 + 3)
         {
             LOG("RECONNECT EVENT CATCH");
             //ResetEvent(deviceParams->m_ReconnectEvent);
-            return threadStatus::THREAD_RECONNECT;
+            tStatus = threadStatus::THREAD_RECONNECT;
+            break;
         }
         int error_code;
         int error_code_size = sizeof(error_code);
@@ -381,9 +383,12 @@ threadStatus waitForDataEventsLoop(
         if (error_code != 0)
         {
             ERR("getsockopt err = " << error_code);
-            return threadStatus::THREAD_RECONNECT;
+            tStatus = threadStatus::THREAD_RECONNECT;
+            break;
         }
     }
+    WSACloseEvent(hDataEvent[0]);
+    return tStatus;
 }
 
 DWORD WINAPI sockDataExchangeProc(
@@ -411,23 +416,24 @@ DWORD WINAPI sockDataExchangeProc(
             ERR("socket function failed with error: " << WSAGetLastError());
             break;
         }
-
         connectToServer(deviceParams, ConnectSocket, portSetting->getTcpPort(), true);
         threadStatus tResult = waitForDataEventsLoop(ConnectSocket, deviceParams);//blocking loop
         shutdown(ConnectSocket, SD_BOTH);
         iResult = closesocket(ConnectSocket);
-        if (tResult == threadStatus::THREAD_FREE)
-        {
-            break;
-        }
         deviceParams->m_portSetting->setStatus(PortStatus::Disconnected);
+        
         if (iResult == SOCKET_ERROR) {
             ERR("closesocket function failed with error: " << WSAGetLastError());
+            break;
+        }
+        if (tResult == threadStatus::THREAD_FREE)
+        {
             break;
         }
         Sleep(RECONNECT_TIMEOUT);
         LOG("Main thread not connected Sleep");
     }
+    deviceParams->m_portSetting->setStatus(PortStatus::Stopped);
     WSACleanup();
     LOG("Main thread closed success!");
     return 1;
@@ -512,7 +518,8 @@ threadStatus waitForDataEventsLoop(
             ::WSAResetEvent(hDataEvent[0]);
             if (clientSocket == INVALID_SOCKET) {
                 ERR("accept failed with error: " << WSAGetLastError());
-                return threadStatus::THREAD_FREE;
+                tStatus = threadStatus::THREAD_FREE;
+                break;
             }
             deviceParams->m_portSetting->setStatus(PortStatus::Connected);
             //Activate client connection events
@@ -525,7 +532,7 @@ threadStatus waitForDataEventsLoop(
             {
                 //Deactivate client connection events
                 ::WSAEventSelect(clientSocket, hDataEvent[1], 0);
-                return tStatus;
+                break;
             }
         }
         //Write to socket
@@ -534,21 +541,23 @@ threadStatus waitForDataEventsLoop(
             tStatus = writeComToTcp(clientSocket, deviceParams, &sendBuf);
             if (tStatus != threadStatus::THREAD_CONTINUE)
             {
-                return tStatus;
+                break;
             }
         }
         //Close thread
         if (wait == WSA_WAIT_EVENT_0 + 3)
         {
             LOG("CLOSE THREAD EVENT CATCH");
-            return threadStatus::THREAD_FREE;// 0;
+            tStatus = threadStatus::THREAD_FREE;// 0;
+            break;
         }
         //Reconnect to server
         if (wait == WSA_WAIT_EVENT_0 + 4)
         {
             LOG("RECONNECT EVENT CATCH");
             //ResetEvent(deviceParams->m_ReconnectEvent);
-            return threadStatus::THREAD_RECONNECT;
+            tStatus = threadStatus::THREAD_RECONNECT;
+            break;
         }
         int error_code;
         int error_code_size = sizeof(error_code);
@@ -556,9 +565,13 @@ threadStatus waitForDataEventsLoop(
         if (error_code != 0)
         {
             ERR("getsockopt err = " << error_code);
-            return threadStatus::THREAD_RECONNECT;
+            tStatus = threadStatus::THREAD_RECONNECT;
+            break;
         }
     }
+    WSACloseEvent(hDataEvent[0]);
+    WSACloseEvent(hDataEvent[1]);
+    return tStatus;
 }
 
 DWORD WINAPI sockDataExchangeProc(
@@ -595,18 +608,19 @@ DWORD WINAPI sockDataExchangeProc(
         threadStatus tResult = waitForDataEventsLoop(serverSocket, deviceParams);//blocking loop
         shutdown(serverSocket, SD_BOTH);
         iResult = closesocket(serverSocket);
-        if (tResult == threadStatus::THREAD_FREE)
-        {
-            break;
-        }
         deviceParams->m_portSetting->setStatus(PortStatus::Disconnected);
         if (iResult == SOCKET_ERROR) {
             ERR("closesocket function failed with error: " << WSAGetLastError());
             break;
         }
+        if (tResult == threadStatus::THREAD_FREE)
+        {
+            break;
+        }
         Sleep(RECONNECT_TIMEOUT);
         LOG("Main thread not connected Sleep");
     }
+    deviceParams->m_portSetting->setStatus(PortStatus::Stopped);
     WSACleanup();
     LOG("Main thread closed success!");
     return 1;

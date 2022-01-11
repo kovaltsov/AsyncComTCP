@@ -20,14 +20,14 @@ private:
 	string ip;
 	USHORT tcpPort;
 	PortStatus status;
-	CAsyncComTCPDlg *dlg;
+	bool statusChange = false;
 public:
 	CPortSetting();
-	CPortSetting(_In_ CAsyncComTCPDlg* dlg);
 	CPortSetting(_In_ const string &ComPort,
 		_In_ const string &IP,
-		_In_ USHORT TcpPort,
-		_In_ CAsyncComTCPDlg* dlg);
+		_In_ USHORT TcpPort);
+	~CPortSetting();
+	bool isStatusChange();
 public:
 	string getIP();
 	string getComPort();

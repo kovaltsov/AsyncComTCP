@@ -75,6 +75,8 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_EDIT, &CAsyncComTCPDlg::OnBnClickedButtonEdit)
 	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CAsyncComTCPDlg::OnBnClickedButtonDelete)
 	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDC_BUTTON_STOP, &CAsyncComTCPDlg::OnBnClickedButtonStop)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -120,16 +122,27 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	fout.open("Log.log");
 	cout.rdbuf(fout.rdbuf());
 
-//Fill for debug purpose. Delete this
+//Fill for debug purpose. Delete this/ Begin
 #ifdef TCP_SERVER
 	this->SetWindowTextA("Server");
-	CPortSetting s("COM7", "192.168.17.35", 8035, this);
+	CPortSetting s("COM7", "192.168.17.35", 8035);
 #else
 	this->SetWindowTextA("Client");
-	CPortSetting s("COM4", "192.168.17.35", 8035, this);
+	CPortSetting s("COM4", "192.168.17.35", 8035);
 #endif
 	portSettings.push_back(s);
+//#ifdef TCP_SERVER
+//	this->SetWindowTextA("Server");
+//	CPortSetting s1("COM12", "192.168.17.35", 8036);
+//#else
+//	this->SetWindowTextA("Client");
+//	CPortSetting s1("COM9", "192.168.17.35", 8036);
+//#endif
+//	portSettings.push_back(s1);
+//Fill for debug purpose. Delete this/ End
 	fillSettings();
+
+	SetTimer(TIMER_UPDATE_ID, TIMER_UPDATE_TIMEOUT, NULL);//Update CListCtrl timer
 
 	return TRUE;  // возврат значения TRUE, если фокус не передан элементу управления
 }
@@ -195,8 +208,7 @@ void CAsyncComTCPDlg::OnBnClickedButtonAdd()
 	}
 	else
 	{ 
-		CPortSetting s(this);
-		editDlg = new CDialogEdit(s);
+		editDlg = new CDialogEdit();
 	}
 	if (editDlg->DoModal() == IDOK)
 	{
@@ -267,10 +279,14 @@ void CAsyncComTCPDlg::updatePortSettings()
 	//m_ListControl.DeleteAllItems();
 	for (unsigned int i = 0; i < portSettings.size(); i++)
 	{
-		setItem(i, portSettings[i].getComPort(),
-			portSettings[i].getIP(),
-			portSettings[i].getTcpPort(),
-			portSettings[i].getStatus());
+		if (portSettings[i].isStatusChange())
+		{
+		/*	setItem(i, portSettings[i].getComPort(),
+				portSettings[i].getIP(),
+				portSettings[i].getTcpPort(),
+				portSettings[i].getStatus());*/
+			m_ListControl.SetItemText(i, 3, portSettings[i].getStatus().c_str());
+		}
 	}
 	//if (curSel != -1)
 	//{
@@ -292,10 +308,24 @@ void CAsyncComTCPDlg::setItem(int num, const string& ComPort, const string& IP, 
 	}
 }
 
+void CAsyncComTCPDlg::stopThreads()
+{
+	for (unsigned int i = 0; i < threadConfigs.size(); i++)
+	{
+		delete threadConfigs[i];
+	}
+	threadConfigs.clear();
+}
+
 
 void CAsyncComTCPDlg::OnBnClickedButtonApply()
 {
    // m_ListControl.DeleteAllItems();
+	if (threadConfigs.size() != 0)
+	{
+		MessageBox("Threads in processing. Press stop button and retry", "Error", MB_OK | MB_ICONSTOP);
+		return;
+	}
     for (unsigned int i = 0; i < portSettings.size(); i++)
     {
         //addItem(portSettings[i].getComPort(), portSettings[i].getIP(), portSettings[i].getTcpPort());
@@ -309,10 +339,29 @@ void CAsyncComTCPDlg::OnBnClickedButtonApply()
 void CAsyncComTCPDlg::OnClose()
 {
 	// TODO: добавьте свой код обработчика сообщений или вызов стандартного
-    for (unsigned int i = 0; i < threadConfigs.size(); i++)
-    {
-        delete threadConfigs[i];
-    }
+	stopThreads();
 	fout.close();
 	CDialogEx::OnClose();
+}
+
+void CAsyncComTCPDlg::OnBnClickedButtonStop()
+{
+	// TODO: добавьте свой код обработчика уведомлений
+	stopThreads();
+}
+
+
+void CAsyncComTCPDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: добавьте свой код обработчика сообщений или вызов стандартного
+	switch (nIDEvent)
+	{
+	case TIMER_UPDATE_ID:
+		updatePortSettings();
+		break;
+	default:
+		break;
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
 }
