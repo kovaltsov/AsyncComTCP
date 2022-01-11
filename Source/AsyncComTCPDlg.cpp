@@ -131,14 +131,14 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	CPortSetting s("COM4", "192.168.17.35", 8035);
 #endif
 	portSettings.push_back(s);
-//#ifdef TCP_SERVER
-//	this->SetWindowTextA("Server");
-//	CPortSetting s1("COM12", "192.168.17.35", 8036);
-//#else
-//	this->SetWindowTextA("Client");
-//	CPortSetting s1("COM9", "192.168.17.35", 8036);
-//#endif
-//	portSettings.push_back(s1);
+#ifdef TCP_SERVER
+	this->SetWindowTextA("Server");
+	CPortSetting s1("COM2", "192.168.17.35", 8036);
+#else
+	this->SetWindowTextA("Client");
+	CPortSetting s1("COM9", "192.168.17.35", 8036);
+#endif
+	portSettings.push_back(s1);
 //Fill for debug purpose. Delete this/ End
 	fillSettings();
 
@@ -251,7 +251,7 @@ void CAsyncComTCPDlg::fillSettings()
 		addItem(portSettings[i].getComPort(), 
 			portSettings[i].getIP(), 
 			portSettings[i].getTcpPort(), 
-			portSettings[i].getStatus());
+			portSettings[i].getStatusString());
 	}
 	//if (curSel != -1)
 	//{
@@ -284,8 +284,8 @@ void CAsyncComTCPDlg::updatePortSettings()
 		/*	setItem(i, portSettings[i].getComPort(),
 				portSettings[i].getIP(),
 				portSettings[i].getTcpPort(),
-				portSettings[i].getStatus());*/
-			m_ListControl.SetItemText(i, 3, portSettings[i].getStatus().c_str());
+				portSettings[i].getStatusString());*/
+			m_ListControl.SetItemText(i, 3, portSettings[i].getStatusString().c_str());
 		}
 	}
 	//if (curSel != -1)

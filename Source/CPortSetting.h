@@ -32,7 +32,8 @@ public:
 	string getIP();
 	string getComPort();
 	USHORT getTcpPort();
-	string getStatus();
+	PortStatus getStatus();
+	string getStatusString();
 	void setIP(_In_ const string& IP);
 	void setComPort(_In_ const string& ComPort);
 	void setTcpPort(_In_ int TcpPort);

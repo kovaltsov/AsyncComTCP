@@ -239,8 +239,11 @@ HRESULT CThreadConfig::comPortOpen(
 	_Out_ HANDLE &hComPort, 
 	_In_ const string& port)
 {
+	string addToPort = "\\\\.\\";
 	HRESULT hr = S_OK;
-	hComPort = CreateFileA(port.c_str(), GENERIC_READ | GENERIC_WRITE, 0,
+	string p = port;
+	p.insert(0, addToPort);
+	hComPort = CreateFileA(p.c_str(), GENERIC_READ | GENERIC_WRITE, 0,
 		NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
 	if (hComPort == INVALID_HANDLE_VALUE)
 	{

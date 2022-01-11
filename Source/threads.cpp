@@ -119,6 +119,7 @@ DWORD WINAPI comDataReadProc(
 )
 {
     CThreadConfig* deviceParams = (CThreadConfig*)lpParameter;
+    CPortSetting* portSetting = deviceParams->m_portSetting;
     CRingBuffer* ComToTcpBuf = &deviceParams->m_ComToTcpBuf;
 
     HANDLE COMport = deviceParams->m_hComPort;
@@ -179,8 +180,11 @@ DWORD WINAPI comDataReadProc(
                         if (GetOverlappedResult(COMport, overlapped, &readBuf.inBuf, true))
                         {
                             DBG("COM rcv " << readBuf.inBuf << " bytes msg: " << readBuf.buf);
-                            ComToTcpBuf->Write(readBuf.buf, readBuf.inBuf);
-                            SetEvent(deviceParams->m_ComRcvEvent);
+                            if (portSetting->getStatus() == PortStatus::Connected)
+                            {//Write only when TCP connected
+                                ComToTcpBuf->Write(readBuf.buf, readBuf.inBuf);
+                                SetEvent(deviceParams->m_ComRcvEvent);
+                            }
                         }
                         else
                         {

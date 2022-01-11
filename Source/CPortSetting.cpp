@@ -47,7 +47,12 @@ USHORT CPortSetting::getTcpPort()
 	return tcpPort;
 }
 
-string CPortSetting::getStatus()
+PortStatus CPortSetting::getStatus()
+{
+	return status;
+}
+
+string CPortSetting::getStatusString()
 {
 	switch (status)
 	{
