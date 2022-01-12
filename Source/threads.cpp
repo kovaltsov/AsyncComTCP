@@ -331,6 +331,7 @@ int connectToServer(
     return connect(ConnectSocket, (SOCKADDR*)&clientService, sizeof(clientService));//always return -1, NON-BLOCKING mode used
 }
 
+//Loop for waiting TCP events and control events
 threadStatus waitForDataEventsLoop(
     SOCKET ConnectSocket,
     CThreadConfig* deviceParams
@@ -395,6 +396,7 @@ threadStatus waitForDataEventsLoop(
     return tStatus;
 }
 
+//Main TCP procedure
 DWORD WINAPI sockDataExchangeProc(
     _In_ LPVOID lpParameter
 )
@@ -494,6 +496,7 @@ int createServer(
     return iResult;
 }
 
+//Loop for waiting TCP events and control events
 threadStatus waitForDataEventsLoop(
     SOCKET serverSocket,
     CThreadConfig* deviceParams
@@ -578,6 +581,7 @@ threadStatus waitForDataEventsLoop(
     return tStatus;
 }
 
+//Main TCP procedure
 DWORD WINAPI sockDataExchangeProc(
     _In_ LPVOID lpParameter
 )

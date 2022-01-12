@@ -125,18 +125,18 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 //Fill for debug purpose. Delete this/ Begin
 #ifdef TCP_SERVER
 	this->SetWindowTextA("Server");
-	CPortSetting s("COM7", "192.168.17.35", 8035);
+	CPortSetting s("COM7", "127.0.0.1", 8035);
 #else
 	this->SetWindowTextA("Client");
-	CPortSetting s("COM4", "192.168.17.35", 8035);
+	CPortSetting s("COM4", "127.0.0.1", 8035);
 #endif
 	portSettings.push_back(s);
 #ifdef TCP_SERVER
 	this->SetWindowTextA("Server");
-	CPortSetting s1("COM2", "192.168.17.35", 8036);
+	CPortSetting s1("COM2", "127.0.0.1", 8036);
 #else
 	this->SetWindowTextA("Client");
-	CPortSetting s1("COM9", "192.168.17.35", 8036);
+	CPortSetting s1("COM9", "127.0.0.1", 8036);
 #endif
 	portSettings.push_back(s1);
 //Fill for debug purpose. Delete this/ End
