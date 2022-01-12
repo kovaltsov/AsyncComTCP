@@ -10,10 +10,14 @@ All receive process are asynchronous.
 Receive and send realized on threads.
 
 You can test widh com0com project. http://com0com.sourceforge.net/
+
 Create two Virtual Port Pair(check usePorts Class for all ports)
+
 Example:
-COM1 <--> COM2
-COM3 <--> COM4
+
+First pair: COM1 <--> COM2
+
+Second pair: COM3 <--> COM4
 
 In AsyncComTCP Client use COM1. 
 Set IP: 127.0.0.1 
