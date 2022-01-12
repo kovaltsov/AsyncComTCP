@@ -9,7 +9,7 @@ All receive process are asynchronous.
 
 Receive and send realized on threads.
 
-You can test widh com0com project. http://com0com.sourceforge.net/
+You can test with com0com project. http://com0com.sourceforge.net/
 
 Create two Virtual Port Pair(check usePorts Class for all ports)
 
