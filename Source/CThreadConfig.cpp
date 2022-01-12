@@ -115,7 +115,7 @@ CThreadConfig::CThreadConfig(_In_ CPortSetting* portSetting)
 		terminateThread(&m_SockClientHandle, "m_SockClientHandle");
 		terminateThread(&m_ComPortRdHandle, "m_ComPortRdHandle");
 		terminateThread(&m_ComPortWrHandle, "m_ComPortWrHandle");
-		throw new exception("Threads create fault");
+		throw exception("Threads create fault");
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "afxdialogex.h"
 #include "AsyncComTCP.h"
 #include "WS2tcpip.h"
+#include "common.h"
 
 #pragma comment(lib, "OneCore.lib")
 
@@ -118,12 +119,17 @@ void CDialogEdit::OnBnClickedOk()
 		m_portSetting.setComPort(strCom);
 
 		m_portSetting.setTcpPort(tcpPort);
+
+		for (int i = 0; i < portSettings.size(); i++)
+		{
+			if (m_portSetting == portSettings[i]) throw exception("Duplicate parameters");
+		}
+		CDialog::OnOK();
 	}
 	catch (exception ex)
 	{
 		MessageBox(ex.what(), "Error", MB_OK | MB_ICONERROR);
 	}
-	CDialog::OnOK();
 }
 
 CPortSetting CDialogEdit::getPortSetting()

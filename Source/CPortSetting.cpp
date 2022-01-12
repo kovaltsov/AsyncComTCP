@@ -65,7 +65,7 @@ string CPortSetting::getStatusString()
 	case PortStatus::Processing:
 		return "Processing";
 	}
-	throw new exception("Bad status");
+	throw exception("Bad status");
 }
 
 void CPortSetting::setIP(_In_ const string& IP)
@@ -74,12 +74,12 @@ void CPortSetting::setIP(_In_ const string& IP)
 }
 void CPortSetting::setComPort(_In_ const string& ComPort)
 {
-	if (ComPort.find("COM", 0) != 0) throw new exception("does not start with COM");
+	if (ComPort.find("COM", 0) != 0) throw exception("does not start with COM");
 	comPort = ComPort;
 }
 void CPortSetting::setTcpPort(_In_ int TcpPort)
 {
-	if (TcpPort < MIN_USER_TCP_PORT || TcpPort > MAX_USER_TCP_PORT) throw new exception("Tcp port incorrect");
+	if (TcpPort < MIN_USER_TCP_PORT || TcpPort > MAX_USER_TCP_PORT) throw exception("Tcp port incorrect");
 	tcpPort = (USHORT)TcpPort;
 }
 
@@ -92,3 +92,9 @@ void CPortSetting::setStatus(_In_ PortStatus Status)
 	status = Status;
 }
 
+bool operator==(CPortSetting const& s1, CPortSetting const& s2)
+{
+	if (s1.comPort == s2.comPort) return true;
+	if (s1.ip == s2.ip && s1.tcpPort == s2.tcpPort) return true;
+	return false;
+}

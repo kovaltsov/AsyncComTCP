@@ -28,6 +28,7 @@ public:
 		_In_ USHORT TcpPort);
 	~CPortSetting();
 	bool isStatusChange();
+	friend bool operator==(CPortSetting const& s1, CPortSetting const& s2);
 public:
 	string getIP();
 	string getComPort();
