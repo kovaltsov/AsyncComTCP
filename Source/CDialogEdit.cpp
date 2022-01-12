@@ -37,6 +37,12 @@ CDialogEdit::CDialogEdit(CPortSetting &s)
 
 }
 
+CDialogEdit::CDialogEdit(CPortSetting& s, int CurVal)
+	:CDialogEdit(s)
+{
+	curVal = CurVal;
+}
+
 CDialogEdit::~CDialogEdit()
 {
 }
@@ -120,9 +126,9 @@ void CDialogEdit::OnBnClickedOk()
 
 		m_portSetting.setTcpPort(tcpPort);
 
-		for (int i = 0; i < portSettings.size(); i++)
+		for (int i = 0; i < (int)portSettings.size(); i++)
 		{
-			if (m_portSetting == portSettings[i]) throw exception("Duplicate parameters");
+			if (i != curVal && m_portSetting == portSettings[i]) throw exception("Duplicate parameters");
 		}
 		CDialog::OnOK();
 	}

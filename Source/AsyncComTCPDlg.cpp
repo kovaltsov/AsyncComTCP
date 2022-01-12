@@ -234,7 +234,7 @@ void CAsyncComTCPDlg::OnBnClickedButtonEdit()
 	int curSel = m_ListControl.GetNextSelectedItem(pos);
 	if (curSel != -1)
 	{
-		CDialogEdit editDlg(portSettings[curSel]);
+		CDialogEdit editDlg(portSettings[curSel], curSel);
 		if (editDlg.DoModal() == IDOK)
 		{
 			portSettings[curSel] = editDlg.getPortSetting();

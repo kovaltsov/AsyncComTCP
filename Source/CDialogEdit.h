@@ -12,9 +12,11 @@ class CDialogEdit : public CDialog
 	DECLARE_DYNAMIC(CDialogEdit)
 private:
 	CPortSetting m_portSetting;
+	int curVal = -1;
 public:
 	CDialogEdit(CWnd* pParent = nullptr);   // стандартный конструктор
 	CDialogEdit(CPortSetting &s);
+	CDialogEdit(CPortSetting& s, int CurVal);
 	virtual ~CDialogEdit();
 
 // Данные диалогового окна
