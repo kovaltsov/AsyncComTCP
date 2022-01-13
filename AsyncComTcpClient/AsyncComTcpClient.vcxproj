@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{886AAE14-E795-4376-A9E9-D3E67BB1EF4E}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>AsyncComToTCP</RootNamespace>
+    <RootNamespace>AsyncComTcpClient</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Client</ProjectName>
   </PropertyGroup>

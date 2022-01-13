@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{CE940741-9E25-495B-B1E1-E75C573A441C}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
-    <RootNamespace>AsyncTCPToCom</RootNamespace>
+    <RootNamespace>AsyncComTcpServer</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Server</ProjectName>
   </PropertyGroup>
@@ -183,13 +183,6 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AsyncComToTCP\AsyncComToTCP.vcxproj">
-      <Project>{886aae14-e795-4376-a9e9-d3e67bb1ef4e}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\AsyncComTCP.cpp" />
     <ClCompile Include="..\Source\AsyncComTCPDlg.cpp" />
