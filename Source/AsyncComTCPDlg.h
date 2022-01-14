@@ -6,6 +6,7 @@
 
 #define TIMER_UPDATE_ID 1
 #define TIMER_UPDATE_TIMEOUT 100
+#define CONFIG_FILE "AsyncComTcp.cfg"
 
 // Диалоговое окно CAsyncComTCPDlg
 class CAsyncComTCPDlg : public CDialogEx
@@ -44,10 +45,13 @@ private:
 
 	void setItem(int num, const string& ComPort, const string& IP, int TcpPort, const string& status);
 	void stopThreads();
+	void readCfg();
+	void saveCfg();
 public:
 	afx_msg void OnBnClickedButtonApply();
 	afx_msg void OnClose();
 	void updatePortSettings();
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnFileSaveconfig();
 };

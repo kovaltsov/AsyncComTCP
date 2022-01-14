@@ -77,6 +77,7 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CAsyncComTCPDlg::OnBnClickedButtonStop)
 	ON_WM_TIMER()
+	ON_COMMAND(ID_FILE_SAVECONFIG, &CAsyncComTCPDlg::OnFileSaveconfig)
 END_MESSAGE_MAP()
 
 
@@ -122,24 +123,16 @@ BOOL CAsyncComTCPDlg::OnInitDialog()
 	fout.open("Log.log");
 	cout.rdbuf(fout.rdbuf());
 
-//Fill for debug purpose. Delete this/ Begin
+	//Open config
+	readCfg();
+
+#ifdef TCP_CLIENT
+	this->SetWindowTextA("Client");
+#endif
 #ifdef TCP_SERVER
 	this->SetWindowTextA("Server");
-	CPortSetting s("COM7", "127.0.0.1", 8035);
-#else
-	this->SetWindowTextA("Client");
-	CPortSetting s("COM4", "127.0.0.1", 8035);
 #endif
-	portSettings.push_back(s);
-#ifdef TCP_SERVER
-	this->SetWindowTextA("Server");
-	CPortSetting s1("COM2", "127.0.0.1", 8036);
-#else
-	this->SetWindowTextA("Client");
-	CPortSetting s1("COM9", "127.0.0.1", 8036);
-#endif
-	portSettings.push_back(s1);
-//Fill for debug purpose. Delete this/ End
+
 	fillSettings();
 
 	SetTimer(TIMER_UPDATE_ID, TIMER_UPDATE_TIMEOUT, NULL);//Update CListCtrl timer
@@ -317,6 +310,55 @@ void CAsyncComTCPDlg::stopThreads()
 	threadConfigs.clear();
 }
 
+void CAsyncComTCPDlg::readCfg()
+{
+	portSettings.clear();
+	ifstream fCfg;
+	fCfg.open(CONFIG_FILE);
+	if (!fCfg.bad())
+	{
+		CPortSetting s;
+		try {
+			while (!fCfg.eof())
+			{
+				string comPort, ip;
+				int tcpPort;
+				fCfg >> comPort >> ip >> tcpPort;
+				s.setComPort(comPort);
+				s.setIP(ip);
+				s.setTcpPort(tcpPort);
+				portSettings.push_back(s);
+			}
+		}
+		catch (exception ex)
+		{
+			//MessageBox(ex.what(), "Error", MB_OK | MB_ICONERROR);
+		}
+	}
+	fCfg.close();
+}
+
+void CAsyncComTCPDlg::saveCfg()
+{
+	ofstream fCfg;
+	fCfg.open(CONFIG_FILE);
+	if (!fCfg.bad())
+	{
+		fCfg.clear();
+		for (unsigned int i = 0; i < portSettings.size(); i++)
+		{
+			/*addItem(portSettings[i].getComPort(),
+				portSettings[i].getIP(),
+				portSettings[i].getTcpPort(),
+				portSettings[i].getStatusString());*/
+			fCfg << portSettings[i].getComPort() << " " <<
+				portSettings[i].getIP() << " " <<
+				portSettings[i].getTcpPort() << endl;
+		}
+	}
+	fCfg.close();
+}
+
 
 void CAsyncComTCPDlg::OnBnClickedButtonApply()
 {
@@ -364,4 +406,11 @@ void CAsyncComTCPDlg::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CAsyncComTCPDlg::OnFileSaveconfig()
+{
+	// TODO: добавьте свой код обработчика команд
+	saveCfg();
 }
