@@ -157,7 +157,7 @@ DWORD WINAPI comDataReadProc(
         wait = WaitForMultipleObjects(waitCount, hDataEvent, false, INFINITE);
         if (wait == WAIT_OBJECT_0)
         {
-            if (GetOverlappedResult(COMport, overlapped, &temp, true)) //completed successfully?
+            if (GetOverlappedResult(COMport, overlapped, (LPDWORD)&temp, true)) //completed successfully?
             {
                 // overlapping operation WaitCommEvent
                 if ((mask & EV_RXCHAR) != 0)
@@ -177,7 +177,7 @@ DWORD WINAPI comDataReadProc(
                                 continue;
                             }
                         }
-                        if (GetOverlappedResult(COMport, overlapped, &readBuf.inBuf, true))
+                        if (GetOverlappedResult(COMport, overlapped, (LPDWORD)&readBuf.inBuf, true))
                         {
                             DBG("COM rcv " << readBuf.inBuf << " bytes msg: " << readBuf.buf);
                             if (portSetting->getStatus() == PortStatus::Connected)
@@ -238,7 +238,7 @@ HRESULT writeTcpToCom(
                     break;
                 }
             }
-            if (GetOverlappedResult(deviceParams->m_hComPort, overlapped, &lpNumberOfBytesWritten, true))
+            if (GetOverlappedResult(deviceParams->m_hComPort, overlapped, (LPDWORD)&lpNumberOfBytesWritten, true))
             {
                 DBG("Write to Com " << lpNumberOfBytesWritten << " bytes");
                 if (lpNumberOfBytesWritten != sendBuf->inBuf)
