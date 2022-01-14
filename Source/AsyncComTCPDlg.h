@@ -54,4 +54,5 @@ public:
 	afx_msg void OnBnClickedButtonStop();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnFileSaveconfig();
+	afx_msg void OnNMDblclkList1(NMHDR* pNMHDR, LRESULT* pResult);
 };

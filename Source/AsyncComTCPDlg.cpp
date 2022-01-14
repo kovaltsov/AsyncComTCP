@@ -78,6 +78,7 @@ BEGIN_MESSAGE_MAP(CAsyncComTCPDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_STOP, &CAsyncComTCPDlg::OnBnClickedButtonStop)
 	ON_WM_TIMER()
 	ON_COMMAND(ID_FILE_SAVECONFIG, &CAsyncComTCPDlg::OnFileSaveconfig)
+	ON_NOTIFY(NM_DBLCLK, IDC_LIST1, &CAsyncComTCPDlg::OnNMDblclkList1)
 END_MESSAGE_MAP()
 
 
@@ -413,4 +414,10 @@ void CAsyncComTCPDlg::OnFileSaveconfig()
 {
 	// TODO: добавьте свой код обработчика команд
 	saveCfg();
+}
+
+
+void CAsyncComTCPDlg::OnNMDblclkList1(NMHDR* /*pNMHDR*/, LRESULT* /*pResult*/)
+{
+	OnBnClickedButtonEdit();
 }
