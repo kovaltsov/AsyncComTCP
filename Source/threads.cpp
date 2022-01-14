@@ -228,7 +228,7 @@ HRESULT writeTcpToCom(
             overlapped->Offset = 0;
             overlapped->OffsetHigh = 0;
 
-            rez = WriteFile(deviceParams->m_hComPort, sendBuf->buf, sendBuf->inBuf, NULL, overlapped);
+            rez = WriteFile(deviceParams->m_hComPort, sendBuf->buf, (DWORD)sendBuf->inBuf, NULL, overlapped);
             if (rez == false)
             {
                 err = GetLastError();
